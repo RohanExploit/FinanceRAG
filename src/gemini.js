@@ -34,12 +34,11 @@ async function withFallback(actionFn) {
 
 /**
  * Generate embedding vector for a piece of text.
- * Uses text-embedding-004 (768-dim, free tier: 1500 req/day)
+ * Uses text-embedding-004 (768-dim, free tier compatible)
  */
 export async function getEmbedding(text) {
     return await withFallback(async (genAI) => {
-        // Fallback to the stable V1 embedding model: embedding-001
-        const model = genAI.getGenerativeModel({ model: "embedding-001" });
+        const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
         const result = await model.embedContent(text);
         return result.embedding.values;
     });
