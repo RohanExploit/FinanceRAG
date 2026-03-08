@@ -1,24 +1,24 @@
-/* ─── Bloomberg Terminal Design Tokens ────────────────────────────────────── */
+/* ─── Professional Finance Dashboard Design Tokens ────────────────────────── */
 :root {
-  /* Terminal Color Palette */
-  --bg-primary: #0a0e1a;        /* Deep terminal black */
-  --bg-secondary: #0d1118;      /* Slightly lighter black */
-  --bg-tertiary: #161b22;       /* Surface elevation */
-  --bg-hover: #1c2128;          /* Hover state */
+  /* Professional Color Palette */
+  --bg-primary: #f8f9fb;        /* Clean white background */
+  --bg-secondary: #ffffff;      /* Pure white - containers */
+  --bg-tertiary: #f0f3f7;       /* Light gray - elevation */
+  --bg-hover: #e8ecf1;          /* Hover state */
 
-  /* Terminal Text Colors */
-  --text-green: #00ff41;        /* Classic neon green - PRIMARY */
-  --text-amber: #ffa500;        /* Amber/orange - ACCENT */
-  --text-gray: #a0a0a0;        /* Light gray - SECONDARY */
-  --text-muted: #606060;        /* Muted gray */
+  /* Professional Text Colors */
+  --text-green: #1e5a96;        /* Professional blue - PRIMARY */
+  --text-amber: #d97706;        /* Professional orange - ACCENT */
+  --text-gray: #4b5563;         /* Dark gray - SECONDARY */
+  --text-muted: #9ca3af;        /* Muted gray */
 
-  /* Terminal Elements */
-  --border-green: #1e3a1f;      /* Green terminal border */
-  --border-amber: #3d2817;      /* Amber border */
-  --glow-green: rgba(0, 255, 65, 0.15);
-  --glow-amber: rgba(255, 165, 0, 0.15);
-  --shadow-green: 0 0 16px rgba(0, 255, 65, 0.2);
-  --shadow-amber: 0 0 16px rgba(255, 165, 0, 0.2);
+  /* Professional Elements */
+  --border-green: #cbd5e1;      /* Subtle border */
+  --border-amber: #fed7aa;      /* Amber border */
+  --glow-green: rgba(30, 90, 150, 0.08);
+  --glow-amber: rgba(217, 119, 6, 0.08);
+  --shadow-green: 0 2px 8px rgba(30, 90, 150, 0.1);
+  --shadow-amber: 0 2px 8px rgba(217, 119, 6, 0.1);
 
   --radius-sm: 2px;
   --radius-md: 4px;
@@ -57,7 +57,7 @@ body {
   font-family: var(--font-system);
   font-size: 13px;
   background: var(--bg-primary);
-  color: var(--text-green);
+  color: var(--text-gray);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   letter-spacing: 0.5px;
@@ -88,18 +88,19 @@ body {
   border: 2px solid var(--bg-secondary);
 }
 
-/* ─── Header (Terminal Bar) ─────────────────────────────────────────────────── */
+/* ─── Header (Professional Bar) ────────────────────────────────────────────── */
 .header {
   height: 48px;
   display: flex;
   align-items: center;
   padding: 0 20px;
-  border-bottom: 2px solid var(--border-green);
-  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-green);
+  background: var(--bg-secondary);
   flex-shrink: 0;
   z-index: 100;
   gap: 12px;
   font-family: var(--font-mono);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 
 .header-logo {
@@ -186,13 +187,13 @@ body {
   overflow: hidden;
 }
 
-/* ─── Sidebar (Terminal Window) ─────────────────────────────────────────────── */
+/* ─── Sidebar (Professional Panel) ──────────────────────────────────────────── */
 .sidebar {
   width: var(--sidebar-w);
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  border-right: 2px solid var(--border-green);
+  border-right: 1px solid var(--border-green);
   background: var(--bg-secondary);
   overflow: hidden;
 }
@@ -580,17 +581,17 @@ body {
 }
 
 .message.ai .message-bubble {
-  background: transparent;
+  background: var(--bg-tertiary);
   border-color: var(--border-green);
-  color: var(--text-green);
-  box-shadow: inset 0 0 8px rgba(0, 255, 65, 0.1);
+  color: var(--text-gray);
+  box-shadow: none;
 }
 
 .message.user .message-bubble {
-  background: transparent;
-  border-color: var(--border-amber);
-  color: var(--text-amber);
-  box-shadow: inset 0 0 8px rgba(255, 165, 0, 0.1);
+  background: var(--text-green);
+  border-color: var(--text-green);
+  color: white;
+  box-shadow: none;
 }
 
 .message-bubble pre {
@@ -741,10 +742,10 @@ body {
   to { transform: rotate(360deg); }
 }
 
-/* ─── Chat Input (Terminal Prompt) ──────────────────────────────────────────── */
+/* ─── Chat Input (Professional Input) ───────────────────────────────────────── */
 .chat-input-area {
   padding: 16px 20px 20px;
-  border-top: 2px solid var(--border-green);
+  border-top: 1px solid var(--border-green);
   background: var(--bg-primary);
   flex-shrink: 0;
 }
@@ -754,8 +755,8 @@ body {
   align-items: flex-end;
   gap: 8px;
   background: transparent;
-  border: 2px solid var(--border-green);
-  border-radius: 0;
+  border: 1px solid var(--border-green);
+  border-radius: 6px;
   padding: 8px 12px;
   transition: var(--transition);
   font-family: var(--font-mono);
@@ -797,17 +798,17 @@ body {
   width: 32px;
   height: 32px;
   flex-shrink: 0;
-  background: transparent;
-  border: 2px solid var(--text-amber);
-  border-radius: 0;
-  color: var(--text-amber);
+  background: var(--text-green);
+  border: none;
+  border-radius: 6px;
+  color: white;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: var(--transition);
   font-family: var(--font-mono);
-  box-shadow: 0 0 8px var(--glow-amber);
+  box-shadow: 0 2px 6px rgba(30, 90, 150, 0.15);
 }
 
 .send-btn:hover:not(:disabled) {
