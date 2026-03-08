@@ -77,6 +77,10 @@ export function renderAuthScreen(onSuccess) {
           <button type="submit" class="auth-btn-primary" id="auth-submit">Sign In</button>
         </form>
 
+        <div class="auth-info-demo" style="background: var(--glow-amber); padding: 10px; border-radius: 4px; margin-bottom: 12px; font-size: 11px; color: var(--text-amber);">
+          📝 <strong>Demo:</strong> demo@alphainsight.local / Demo123456
+        </div>
+
         <div class="auth-divider"><span>or</span></div>
 
         <button class="auth-btn-ghost" id="btn-guest">

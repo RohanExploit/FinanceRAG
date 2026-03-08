@@ -5,7 +5,8 @@
       "Bash(npm install:*)",
       "Bash(firebase:*)",
       "Bash(npm list:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(gh repo:*)"
     ]
   }
 }
