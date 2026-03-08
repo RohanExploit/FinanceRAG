@@ -6,7 +6,9 @@
       "Bash(firebase:*)",
       "Bash(npm list:*)",
       "Bash(curl:*)",
-      "Bash(gh repo:*)"
+      "Bash(gh repo:*)",
+      "Bash(node:*)",
+      "Bash(rm:*)"
     ]
   }
 }

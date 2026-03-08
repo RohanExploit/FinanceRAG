@@ -1,30 +1,26 @@
-const OPEN_ROUTER_API_KEY = "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";
-const OPEN_ROUTER_BASE = "https://openrouter.ai/api/v1";
+const API_BASE = window.location.hostname === 'localhost'
+  ? 'http://localhost:3001'
+  : '';
 
 /**
- * Generate embedding vector for a piece of text.
- * Uses Open Router's text-embedding model
+ * Generate embedding vector for a piece of text via backend.
  */
 export async function getEmbedding(text) {
     try {
-        const response = await fetch(`${OPEN_ROUTER_BASE}/embeddings`, {
+        const response = await fetch(`${API_BASE}/api/embed`, {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${OPEN_ROUTER_API_KEY}`,
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-                model: "openai/text-embedding-3-small",
-                input: text,
-            }),
+            body: JSON.stringify({ text }),
         });
 
         if (!response.ok) {
-            throw new Error(`OpenRouter embedding failed: ${response.status}`);
+            throw new Error(`Embedding failed: ${response.status}`);
         }
 
         const data = await response.json();
-        return data.data[0].embedding;
+        return data.embedding;
     } catch (err) {
         console.error("Embedding error:", err);
         throw new Error(`Failed to generate embedding: ${err.message}`);
@@ -32,39 +28,22 @@ export async function getEmbedding(text) {
 }
 
 /**
- * Stream a financial answer from Claude via Open Router.
+ * Stream a financial answer from Claude via backend.
  * @param {string} prompt - Full RAG prompt with context
  * @param {function} onChunk - Called with (newText, fullText) on each chunk
  */
 export async function streamAnswer(prompt, onChunk) {
     try {
-        const response = await fetch(`${OPEN_ROUTER_BASE}/chat/completions`, {
+        const response = await fetch(`${API_BASE}/api/chat`, {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${OPEN_ROUTER_API_KEY}`,
                 "Content-Type": "application/json",
-                "HTTP-Referer": window.location.href,
             },
-            body: JSON.stringify({
-                model: "claude-3.5-sonnet",
-                messages: [
-                    {
-                        role: "system",
-                        content: `You are AlphaInsight Pro, an expert financial analyst AI.
-You answer questions strictly based on the provided financial document context.
-Be precise, cite numbers and figures, and use professional financial language.
-If the context doesn't contain the answer, say so honestly — do NOT hallucinate.
-Format numbers clearly (e.g. $1.2M, 15.3%, Q3 FY2024).`,
-                    },
-                    { role: "user", content: prompt },
-                ],
-                stream: true,
-                temperature: 0.7,
-            }),
+            body: JSON.stringify({ prompt }),
         });
 
         if (!response.ok) {
-            throw new Error(`Open Router API failed: ${response.status}`);
+            throw new Error(`Chat API failed: ${response.status}`);
         }
 
         const reader = response.body.getReader();
@@ -85,7 +64,7 @@ Format numbers clearly (e.g. $1.2M, 15.3%, Q3 FY2024).`,
 
                     try {
                         const parsed = JSON.parse(data);
-                        const text = parsed.choices[0]?.delta?.content || "";
+                        const text = parsed.text || "";
                         if (text) {
                             fullText += text;
                             if (onChunk) onChunk(text, fullText);

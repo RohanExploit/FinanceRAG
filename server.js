@@ -283,6 +283,120 @@ app.get('/api/analytics', verifyToken, async (req, res) => {
   }
 });
 
+// ─── Open Router API Endpoints (for frontend to use) ───────────────────────
+const OPEN_ROUTER_API_KEY = "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";
+const OPEN_ROUTER_BASE = "https://openrouter.ai/api/v1";
+
+// Embedding endpoint
+app.post('/api/embed', async (req, res) => {
+  try {
+    const { text } = req.body;
+    if (!text) {
+      return res.status(400).json({ error: 'Text required' });
+    }
+
+    const response = await fetch(`${OPEN_ROUTER_BASE}/embeddings`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${OPEN_ROUTER_API_KEY}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://studio-6436785850-def2b.web.app",
+      },
+      body: JSON.stringify({
+        model: "openai/text-embedding-3-small",
+        input: text,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`OpenRouter failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    res.json({ embedding: data.data[0].embedding });
+  } catch (err) {
+    console.error('Embed error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Streaming chat endpoint
+app.post('/api/chat', async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    if (!prompt) {
+      return res.status(400).json({ error: 'Prompt required' });
+    }
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    const response = await fetch(`${OPEN_ROUTER_BASE}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${OPEN_ROUTER_API_KEY}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://studio-6436785850-def2b.web.app",
+      },
+      body: JSON.stringify({
+        model: "claude-3.5-sonnet",
+        messages: [
+          {
+            role: "system",
+            content: `You are AlphaInsight Pro, an expert financial analyst AI.
+You answer questions strictly based on the provided financial document context.
+Be precise, cite numbers and figures, and use professional financial language.
+If the context doesn't contain the answer, say so honestly — do NOT hallucinate.
+Format numbers clearly (e.g. $1.2M, 15.3%, Q3 FY2024).`,
+          },
+          { role: "user", content: prompt },
+        ],
+        stream: true,
+        temperature: 0.7,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`OpenRouter failed: ${response.status}`);
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value);
+      const lines = chunk.split("\n");
+
+      for (const line of lines) {
+        if (line.startsWith("data: ")) {
+          const data = line.slice(6);
+          if (data === "[DONE]") continue;
+
+          try {
+            const parsed = JSON.parse(data);
+            const text = parsed.choices[0]?.delta?.content || "";
+            if (text) {
+              res.write(`data: ${JSON.stringify({ text })}\n\n`);
+            }
+          } catch (e) {
+            // Skip parsing errors
+          }
+        }
+      }
+    }
+
+    res.write("data: [DONE]\n\n");
+    res.end();
+  } catch (err) {
+    console.error('Chat error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Genkit Express server running on port ${PORT}`);
