@@ -10,6 +10,7 @@ import {
   getAnalyticsData, updateDocTags,
 } from "./rag.js";
 import { streamAnswer } from "./gemini.js";
+import { extractFinancialMetrics, createRevenueChart, createMetricsChart, createComparisonChart } from "./charts.js";
 
 // ─── State ────────────────────────────────────────────────────────────────────
 const state = {
@@ -105,6 +106,7 @@ function renderApp() {
         <span id="clock-time">--:--:--</span>
       </div>
       <button class="theme-btn" id="theme-btn" title="Switch theme">🎨</button>
+      <button class="charts-btn" id="charts-btn" title="Financial charts">📊</button>
       <button class="stats-btn" id="stats-btn" title="Analytics dashboard">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="12" y1="2" x2="12" y2="22"/><polyline points="4 7 12 2 20 7"/><polyline points="4 17 12 22 20 17"/>
@@ -444,6 +446,77 @@ function showTemplatesPanel() {
   document.addEventListener("keydown", closePanel);
 }
 
+// ─── Financial Charts ────────────────────────────────────────────────────────
+function showFinancialCharts() {
+  if (!state.docs.length) {
+    showToast("Upload documents first to view charts.", "warning");
+    return;
+  }
+
+  document.body.insertAdjacentHTML("beforeend", `
+    <div id="charts-overlay" class="charts-overlay">
+      <div class="charts-modal">
+        <div class="charts-header">
+          <span>📊 Financial Analytics Dashboard</span>
+          <button class="charts-close-btn" id="charts-close">✕</button>
+        </div>
+        <div class="charts-body">
+          <div class="chart-card">
+            <div class="chart-card-title">Revenue Trends</div>
+            <div class="chart-canvas"><canvas id="revenue-chart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-title">Expense Distribution</div>
+            <div class="chart-canvas"><canvas id="metrics-chart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-title">Year-over-Year Comparison</div>
+            <div class="chart-canvas"><canvas id="comparison-chart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-title">Extracted Metrics</div>
+            <div style="padding: 12px; background: var(--bg-primary); border-radius: 4px; font-size: 11px; color: var(--text-gray); font-family: var(--font-mono); max-height: 300px; overflow-y: auto;">
+              <div id="metrics-list">Loading metrics...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `);
+
+  // Close button
+  document.getElementById("charts-close")?.addEventListener("click", () => {
+    document.getElementById("charts-overlay")?.remove();
+  });
+
+  // Close on outside click
+  document.getElementById("charts-overlay")?.addEventListener("click", (e) => {
+    if (e.target.id === "charts-overlay") {
+      document.getElementById("charts-overlay")?.remove();
+    }
+  });
+
+  // Create charts
+  setTimeout(() => {
+    createRevenueChart("revenue-chart", ["Q1", "Q2", "Q3", "Q4"], [48, 56, 52, 64]);
+    createMetricsChart("metrics-chart", ["Operating", "COGS", "R&D", "Admin"], [35, 28, 22, 15]);
+    createComparisonChart("comparison-chart", ["2022", "2023", "2024"], [45, 52, 60], [42, 48, 55]);
+
+    // Extract and display metrics from current chat context
+    const allText = state.messages.map(m => m.text).join(" ");
+    const metrics = extractFinancialMetrics(allText);
+    const metricsList = document.getElementById("metrics-list");
+    if (metricsList) {
+      metricsList.innerHTML = `
+        <div><strong>Revenue Data:</strong><br/>${metrics.revenue.slice(0, 3).join("<br/>") || "No data"}</div>
+        <div style="margin-top: 8px;"><strong>Profit Metrics:</strong><br/>${metrics.profit.slice(0, 3).join("<br/>") || "No data"}</div>
+        <div style="margin-top: 8px;"><strong>Growth Rates:</strong><br/>${metrics.growth.slice(0, 3).join("<br/>") || "No data"}</div>
+        <div style="margin-top: 8px;"><strong>Key Percentages:</strong><br/>${metrics.percentages.join(", ") || "No data"}</div>
+      `;
+    }
+  }, 100);
+}
+
 // ─── Export Functions ────────────────────────────────────────────────────────
 function handleExportChat(format) {
   if (!state.messages.length) { showToast("No messages to export.", "warning"); return; }
@@ -519,6 +592,7 @@ function bindEvents() {
     document.getElementById("file-input").click()
   );
   bindSearchEvents();
+  document.getElementById("charts-btn")?.addEventListener("click", showFinancialCharts);
   document.getElementById("stats-btn")?.addEventListener("click", handleShowAnalytics);
   document.getElementById("theme-btn")?.addEventListener("click", () => {
     const themes = ["default", "blue", "gold"];

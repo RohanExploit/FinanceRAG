@@ -13,6 +13,7 @@
     "@genkit-ai/express": "^1.29.0",
     "@genkit-ai/google-genai": "^1.29.0",
     "@google/generative-ai": "^0.21.0",
+    "chart.js": "^4.4.1",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
