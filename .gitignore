@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Environment variables (contains API keys - NEVER commit!)
+.env
+.env.local
+.env.*.local
+
+# Build output
+dist/
+.firebase/
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
